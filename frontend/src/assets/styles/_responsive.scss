@@ -1,0 +1,29 @@
+// Адаптивность и точечные правки компонентов PrimeVue.
+
+$bp-mobile: 576px;
+$bp-tablet: 768px;
+
+// Таблица на узком экране должна прокручиваться по горизонтали, а не
+// сжимать колонки до нечитаемого состояния.
+.p-datatable-table-container {
+  overflow-x: auto;
+}
+
+.p-datatable .p-datatable-table {
+  min-width: 100%;
+}
+
+// Диалог не должен выходить за пределы экрана телефона.
+.p-dialog:not(.p-dialog-maximized) {
+  max-width: calc(100vw - 2rem);
+}
+
+@media (max-width: $bp-mobile) {
+  .p-dialog:not(.p-dialog-maximized) {
+    width: calc(100vw - 2rem) !important;
+  }
+
+  .toolbar__search {
+    width: 100%;
+  }
+}

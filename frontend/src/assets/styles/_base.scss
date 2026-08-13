@@ -1,0 +1,78 @@
+// Базовые стили документа: сброс, типографика, полосы прокрутки.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family:
+    'Inter',
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  color: var(--p-text-color);
+  background: var(--p-surface-50);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-dark body {
+  background: var(--p-surface-900);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+// Полосы прокрутки: системные в тёмной теме выглядят чужеродно.
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--p-surface-300);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--p-surface-400);
+  }
+}
+
+.app-dark ::-webkit-scrollbar-thumb {
+  background: var(--p-surface-700);
+
+  &:hover {
+    background: var(--p-surface-600);
+  }
+}

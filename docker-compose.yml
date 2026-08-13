@@ -1,0 +1,72 @@
+# ============================================================
+# Neo Trip CRM
+#
+# Разработка: поднимается только БД
+#   docker compose up -d db
+#
+# Продакшен: поднимается всё
+#   docker compose --profile prod up -d
+# ============================================================
+
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: neo_trip_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-neo_trip}
+      POSTGRES_USER: ${POSTGRES_USER:-neo_trip}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD не задан в .env}
+      # Локаль и кодировка задаются при инициализации кластера
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # В PostgreSQL 18+ образ ожидает монтирование каталога целиком, а не подкаталога
+      # data: внутри создаётся подкаталог с номером мажорной версии, что позволяет
+      # использовать pg_upgrade --link при обновлении.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-neo_trip} -d ${POSTGRES_DB:-neo_trip}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ---------- Сервисы ниже поднимаются только с профилем prod ----------
+
+  backend:
+    profiles: ["prod"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: neo_trip_backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Внутри compose-сети БД доступна по имени сервиса, а не по localhost
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      APP_ENV: production
+      DEBUG: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    profiles: ["prod"]
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: neo_trip_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  pgdata:
+    name: neo_trip_pgdata
